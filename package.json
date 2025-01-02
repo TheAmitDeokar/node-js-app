@@ -26,13 +26,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/MithunTechnologies/node-js-application"
+    "url": "https://github.com/TheAmitDeokar/node-js-app"
   },
   "keywords": [
     "node",
-    "Mithun Technologies",
+    "abd",
     "express"
   ],
-  "author": "Mithun Reddy Lacchannagari",
-  "license": "MIT"
+  "author": "abd",
+  "license": "abd"
 }
