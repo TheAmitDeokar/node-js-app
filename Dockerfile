@@ -1,7 +1,6 @@
 FROM node
 WORKDIR /app
-COPY package.json package.json
-RUN npm install 
 COPY . . 
+RUN npm install 
 EXPOSE 9981
 CMD ["node","app.js"]
