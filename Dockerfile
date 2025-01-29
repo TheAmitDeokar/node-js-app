@@ -1,5 +1,5 @@
 FROM node
-WORKDIR /app
+WORKDIR /usr/app
 COPY . . 
 RUN npm install 
 EXPOSE 9981
