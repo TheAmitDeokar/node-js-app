@@ -11,7 +11,7 @@ node{
 
 // Git Checkout stage
 stage('CheckOutCode'){
-git branch: 'master', credentialsId: 'fc94c29f-d9da-45c5-b7e5-b7af1b566cc2', url: 'https://github.com/TheAmitDeokar/node-js-app.git'
+git credentialsId: 'fc94c29f-d9da-45c5-b7e5-b7af1b566cc2', url: 'https://github.com/TheAmitDeokar/node-js-app.git'
 }
 
 // Build Docker Image
