@@ -1,6 +1,6 @@
 node{
     
-    def buildNumber = BUILD_NUMBER
+     def buildNumber = BUILD_NUMBER
     
     // To keep last 5 buil only, old one will be delete
         properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5', removeLastBuild: true)), pipelineTriggers([])])
@@ -11,7 +11,7 @@ node{
 
 // Git Checkout stage
 stage('CheckOutCode'){
-git credentialsId: 'fc94c29f-d9da-45c5-b7e5-b7af1b566cc2', url: 'https://github.com/TheAmitDeokar/node-js-app.git'
+git branch: 'master', credentialsId: 'fc94c29f-d9da-45c5-b7e5-b7af1b566cc2', url: 'https://github.com/TheAmitDeokar/node-js-app.git'
 }
 
 // Build Docker Image
