@@ -1,0 +1,57 @@
+node{
+     
+     def buildNumber = BUILD_NUMBER
+
+// To keep last 5 buil only, old one will be delete
+        properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5', removeLastBuild: true))])
+// Github will notify to jenkins once changes/commit is done in github and jenkins starts build automatically 
+       properties([pipelineTriggers([githubPush()])])
+
+
+    stage("Git CheckOut"){
+         git branch: 'master', credentialsId: 'GithubCred', url: 'https://github.com/TheAmitDeokar/node-js-app.git'
+    }
+    
+        
+     // Build Docker Image
+    stage('Build Docker image'){
+    
+    sh "docker build -t 686255940829.dkr.ecr.ap-south-1.amazonaws.com/node-app-mss:${buildNumber} ."
+    } 
+   
+
+// Docker Login and push image
+    stage('Docker Login and push image'){
+    
+   sh "aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 686255940829.dkr.ecr.ap-south-1.amazonaws.com"       
+
+   sh "docker push 686255940829.dkr.ecr.ap-south-1.amazonaws.com/node-app-mss:${buildNumber}"
+    }
+
+ 
+    // Deloy App as Docker swarm cluster in Docker Deployment server
+     stage('Deploy App as Docker swarm Container cluster in Docker Deployment server'){
+        sshagent(['ubuntudeploymentserver']) {
+          
+         sh "aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 686255940829.dkr.ecr.ap-south-1.amazonaws.com"       
+        
+        // Remove old service from master node
+         sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.43.211 docker service rm nodeapp || true"
+           
+        // Remove old images from all nodes 
+          sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.43.211 'docker rmi \$(docker images -q)' || true"
+          sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.45.151 'docker rmi \$(docker images -q)' || true"
+          sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.36.183 'docker rmi \$(docker images -q)' || true"
+          
+        // Pull image from ECR to all nodes  
+          sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.43.211 docker pull 686255940829.dkr.ecr.ap-south-1.amazonaws.com/node-app-mss:${buildNumber}"
+          sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.45.151 docker pull 686255940829.dkr.ecr.ap-south-1.amazonaws.com/node-app-mss:${buildNumber}"
+          sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.36.183 docker pull 686255940829.dkr.ecr.ap-south-1.amazonaws.com/node-app-mss:${buildNumber}"
+          
+          // Create docker service in master node with 4 replica
+          sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.43.211 docker service create --name nodeapp --replicas 4 -p 5000:5000 686255940829.dkr.ecr.ap-south-1.amazonaws.com/node-app-mss:${buildNumber}"
+        
+    }
+     }
+   
+}
