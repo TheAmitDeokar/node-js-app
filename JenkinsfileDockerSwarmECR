@@ -49,8 +49,8 @@ node{
           sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.36.183 docker pull 686255940829.dkr.ecr.ap-south-1.amazonaws.com/node-app-mss:${buildNumber}"
           
           // Create docker service in master node with 4 replica
-          sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.43.211 docker service create --name nodeapp --replicas 4 -p 5000:9981 --network nodeappoverlay 686255940829.dkr.ecr.ap-south-1.amazonaws.com/node-app-mss:${buildNumber}"
-        
+         // sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.43.211 docker service create --name nodeapp --replicas 4 -p 5000:9981 --network nodeappoverlay 686255940829.dkr.ecr.ap-south-1.amazonaws.com/node-app-mss:${buildNumber}"
+        sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.43.211 docker service create --name nodeapp --replicas 4 -p 5000:9981 --network nodeappoverlay --constraint "node.role==worker" 686255940829.dkr.ecr.ap-south-1.amazonaws.com/node-app-mss:${buildNumber}"
     }
      }
    
